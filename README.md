@@ -1,7 +1,7 @@
 websocks
 ========
 
-A web sockets demo. Inspired by Kaazings [Razer](http://demo.kaazing.com/racer/)demo.
+A web sockets demo. Inspired by Kaazings [Razer](http://demo.kaazing.com/racer/) demo.
 
 Uses node.js, socket.io, and HTML5.
 

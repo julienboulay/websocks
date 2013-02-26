@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Mobile Gyro Reader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <style>
+        #no {
+        display: none;
+        }
+
+        @media screen {
+        html, body, div, span {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        outline: 0;
+        font-size: 100%;
+        vertical-align: baseline;
+        }
+        body {
+        height: auto;
+        -webkit-text-size-adjust:none;
+        font-family:Helvetica, Arial, Verdana, sans-serif;
+        padding:0px;
+        overflow-x: hidden;
+        }
+
+        .outer {
+        background: rgba(123, 256, 245, 0.9);
+        padding: 0px;
+        min-height: 48px;
+
+        }
+
+        .box {
+        position: relative;
+        float: left;
+        width: 45%;
+        padding: 7px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        background: rgba(178,215,255,0.75);
+        min-height: 160px;
+        }
+
+        .box2 {
+        position: relative;
+        float: left;
+        width: 45%;
+        padding: 7px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        background: rgba(178,215,255,0.75);
+        }
+
+        .box span {
+        display: block;
+        }
+
+        span.head {
+        font-weight: bold;
+        }
+
+        }
+    </style>
+</head>
+
+<body>
+<div id="yes">
+
+    <div class="box" id="gyro">
+        <span class="head">Gyroscope</span>
+        <span id="alphalabel"></span>
+        <span id="betalabel"></span>
+        <span id="gammalabel"></span>
+    </div>
+
+</div>
+
+<div id="no">
+    Your browser does not support Device Orientation and Motion API. Try this sample with iPhone, iPod or iPad with iOS
+    4.2+. And some android devices.
+</div>
+
+<script>
+
+    var delay = 100;
+
+    var alpha = 0;
+    var beta = 0;
+    var gamma = 0;
+
+    if (window.DeviceMotionEvent==undefined) {
+        document.getElementById("no").style.display="block";
+        document.getElementById("yes").style.display="none";
+    }
+
+    window.ondeviceorientation = function(event) {
+        alpha = Math.round(event.alpha);
+        beta = Math.round(event.beta);
+        gamma = Math.round(event.gamma);
+    }
+
+    setInterval(function() {
+        document.getElementById("alphalabel").innerHTML = "Alpha: " + alpha;
+        document.getElementById("betalabel").innerHTML = "Beta: " + beta;
+        document.getElementById("gammalabel").innerHTML = "Gamma: " + gamma;
+
+    }, delay);
+
+</script>
+</body>
+</html>
