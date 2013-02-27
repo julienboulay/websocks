@@ -223,19 +223,23 @@ mouseDown = false;
 }
 
 
-function handleMouseMove(event) {
-if (!mouseDown) {
-return;
-}
-var newX = event.clientX;
-var newY = event.clientY;
+function handleMouseMove(data) {
+//if (!mouseDown) {
+//return;
+//}
 
-var deltaX = newX - lastMouseX
+//var newX = data.beta;
+//var newY = data.gamma;
+
+//var deltaX = newX - lastMouseX
+
+var deltaX = data.gamma;
 var newRotationMatrix = mat4.create();
 mat4.identity(newRotationMatrix);
 mat4.rotate(newRotationMatrix, degToRad(deltaX / 10), [0, 1, 0]);
 
-var deltaY = newY - lastMouseY;
+//var deltaY = newY - lastMouseY;
+var deltaY = data.beta;
 mat4.rotate(newRotationMatrix, degToRad(deltaY / 10), [1, 0, 0]);
 
 mat4.multiply(newRotationMatrix, moonRotationMatrix, moonRotationMatrix);
@@ -402,25 +406,39 @@ initTexture();
 gl.clearColor(0.0, 0.0, 0.0, 1.0);
 gl.enable(gl.DEPTH_TEST);
 
-canvas.onmousedown = handleMouseDown;
-document.onmouseup = handleMouseUp;
-document.onmousemove = handleMouseMove;
+//canvas.onmousedown = handleMouseDown;
+//document.onmouseup = handleMouseUp;
+//document.onmousemove = handleMouseMove;
 
 tick();
 }
 
 </script>
 
+<script type="text/javascript">
+    // connect to websocket
 
-<script>
-
-    console.log(location.host);
+    var id = -1;
     var socket = io.connect('http://localhost:8080');
-    socket.on('news', function (data) {
-    console.log(data);
-    socket.emit('my other event', { my: 'data' });
+    socket.on('connect', function () {
+
+        socket.emit('getId');
+
+        socket.on('id', function (data){
+            id = data;
+            document.getElementById("idField").innerHTML = 'Id: ' + id;
+        });
     });
-</script>
+
+    socket.on('gyroData', function(data){
+        if(data.id == id){
+            document.getElementById("alphalabel").innerHTML = "Alpha: " + data.alpha;
+            document.getElementById("betalabel").innerHTML = "Beta: " + data.beta;
+            document.getElementById("gammalabel").innerHTML = "Gamma: " + data.gamma;
+            handleMouseMove(data)
+        }
+    });
+
 
 </script>
 
@@ -428,7 +446,17 @@ tick();
 
 
 <body onload="webGLStart();">
-<a href="http://learningwebgl.com/blog/?p=1253">&lt;&lt; Back to Lesson 11</a><br/>
+
+<h2 id="idField"></h2>
+<br/>
+<div class="box" id="gyro">
+    <span class="head">Gyroscope</span>
+    <span id="alphalabel"></span>
+    <span id="betalabel"></span>
+    <span id="gammalabel"></span>
+</div>
+
+<br>
 
 <canvas id="lesson11-canvas" style="border: none;" width="500" height="500"></canvas>
 <br/>
@@ -471,7 +499,5 @@ Moon texture courtesy of <a href="http://maps.jpl.nasa.gov/">the Jet Propulsion 
 <br/>
 <br/>
 
-<a href="http://learningwebgl.com/blog/?p=1253">&lt;&lt; Back to Lesson 11</a><br/>
 </body>
-
 </html>

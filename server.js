@@ -12,9 +12,14 @@ app.get('/js/:resource', function (req, res) {
   res.sendfile(__dirname+'/web/js/'+req.params.resource);
 });
 
+var id = 0;
+io.set('log level', 1);
 io.sockets.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
+    socket.on('getId', function (data){
+        socket.emit('id', id++);
+    });
+
+    socket.on('gyroData',function (data){
+         socket.broadcast.emit('gyroData', data);
+     });
 });

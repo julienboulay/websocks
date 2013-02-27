@@ -4,6 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Mobile Gyro Reader</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <style>
         #no {
         display: none;
@@ -67,6 +68,13 @@
 <body>
 <div id="yes">
 
+
+    <form name="idForm" action="#" method="get">
+        <input type="text" name="idField" value=""> <br>
+        <input type="button" value="Set Id" onclick="updateId(this.form)"> <br>
+        <input type="button" value="Calibrate" onclick="calibrate()">
+    </form>
+
     <div class="box" id="gyro">
         <span class="head">Gyroscope</span>
         <span id="alphalabel"></span>
@@ -85,27 +93,44 @@
 
     var delay = 100;
 
-    var alpha = 0;
     var beta = 0;
     var gamma = 0;
+    var offsetBeta = 0;
+    var offsetGamma = 0;
 
-    if (window.DeviceMotionEvent==undefined) {
+    var id = -1;
+
+    var socket = io.connect(document.location.host);
+
+    if (window.DeviceOrientationEvent) {
+        window.ondeviceorientation = function(event) {
+            beta = Math.round(event.beta);
+            gamma = Math.round(event.gamma);
+            if(id != -1){
+                socket.emit('gyroData', {id:id, beta:beta+offsetBeta, gamma:gamma+offsetGamma});
+            }
+        }
+
+    } else {
         document.getElementById("no").style.display="block";
         document.getElementById("yes").style.display="none";
     }
 
-    window.ondeviceorientation = function(event) {
-        alpha = Math.round(event.alpha);
-        beta = Math.round(event.beta);
-        gamma = Math.round(event.gamma);
+    setInterval(function() {
+        document.getElementById("betalabel").innerHTML = "Front-Back: " + (beta+offsetBeta);
+        document.getElementById("gammalabel").innerHTML = "Left-Right: " + (gamma+offsetGamma);
+    }, delay);
+
+    function updateId(form)
+    {
+        id = form.idField.value;
     }
 
-    setInterval(function() {
-        document.getElementById("alphalabel").innerHTML = "Alpha: " + alpha;
-        document.getElementById("betalabel").innerHTML = "Beta: " + beta;
-        document.getElementById("gammalabel").innerHTML = "Gamma: " + gamma;
-
-    }, delay);
+    function calibrate()
+    {
+        offsetBeta = -beta;
+        offsetGamma = -gamma;
+    }
 
 </script>
 </body>
