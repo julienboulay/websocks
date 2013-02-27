@@ -2,7 +2,18 @@ var app = require('express')()
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server);
 
-server.listen(8080);
+
+var port;
+
+if (process.env.PROD)
+{
+    port = 80;
+}
+else{
+    port=8080;
+}
+
+server.listen(port);
 
 app.get('/:resource', function (req, res) {
   res.sendfile(__dirname+'/web/'+req.params.resource);
