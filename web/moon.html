@@ -419,7 +419,7 @@ tick();
     // connect to websocket
 
     var id = -1;
-    var socket = io.connect('http://localhost:8080');
+    var socket = io.connect(document.location.host);
     socket.on('connect', function () {
 
         socket.emit('getId');
