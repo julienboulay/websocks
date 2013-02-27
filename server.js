@@ -1,14 +1,16 @@
-var connect = require('connect');
+var app = require('express')()
+  , server = require('http').createServer(app)
+  , io = require('socket.io').listen(server);
 
-// static web server
-var httpServer = connect.createServer(
-    connect.static(__dirname)
-);
+server.listen(8080);
 
-httpServer.listen(8080);
+app.get('/:resource', function (req, res) {
+  res.sendfile(__dirname+'/web/'+req.params.resource);
+});
 
-// socket io web socket server
-var io = require('socket.io').listen(httpServer);
+app.get('/js/:resource', function (req, res) {
+  res.sendfile(__dirname+'/web/js/'+req.params.resource);
+});
 
 io.sockets.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
