@@ -133,13 +133,10 @@
 	
       }else if (window.DeviceMotionEvent && !isDeviceMotionListenerAdded)
       {
-	console.log("Browser support for device motion = true");
-	console.log("Add new devicemotion listener");
 	window.addEventListener('devicemotion', handleMotion, false);
 	isDeviceMotionListenerAdded = true;
       }else
       {
-	console.log("Browser support for device motion = true");
 	document.getElementById("no").style.display="block";
         document.getElementById("yes").style.display="none";
       }
