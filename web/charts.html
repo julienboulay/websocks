@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<script type="text/javascript" src="socket.io/socket.io.js"></script>
+
+	<script type="text/javascript">
+	window.onload = function () {
+
+		// dataPoints
+		var dataPoints1 = [];
+		var dataPoints2 = [];
+
+		var chart = new CanvasJS.Chart("chartContainer",{
+			zoomEnabled: true,
+			title: {
+				text: "Share Values of Two smartphones"		
+			},
+			toolTip: {
+				shared: true,
+				
+			},
+			legend: {
+				verticalAlign: "top",
+				horizontalAlign: "center",
+                                fontSize: 14,
+				fontWeight: "bold",
+				fontFamily: "calibri",
+				fontColor: "dimGrey"
+			},
+			axisX: {
+				title: "chart updates in real time",
+			},
+			axisY:{
+				includeZero: false
+			}, 
+			data: [{ 
+				// dataSeries1
+				type: "line",
+				xValueType: "dateTime",
+				showInLegend: true,
+				name: "Smartphone 1",
+				dataPoints: dataPoints1
+			},
+			{				
+				// dataSeries2
+				type: "line",
+				xValueType: "dateTime",
+				showInLegend: true,
+				name: "Smartphone 2" ,
+				dataPoints: dataPoints2
+			}]
+		});
+
+
+		var startTime =  new Date().getTime();
+		// starting at 0.00 am
+
+		var socket = io.connect(document.location.host);
+		var time = new Date();
+		
+		socket.on('gyroData', function(data){
+		
+		    time.setTime(new Date().getTime() - startTime);
+		
+		    if(data.id == '1'){
+			betaValue1 = data.beta;
+			gamma = data.gamma;
+			
+			dataPoints1.push({
+				x: time.getTime(),
+				y: betaValue1,
+			});
+			
+		    } else if (data.id == '2'){
+			betaValue2 = data.beta;
+			gamma = data.gamma;
+
+			dataPoints2.push({
+				x: time.getTime(),
+				y: betaValue2,
+			});
+		    }
+		    
+		    chart.render();
+		});
+
+	}
+	</script>
+	<script type="text/javascript" src="js/canvasjs.min.js"></script>
+</head>
+<body>
+	<div id="chartContainer" style="height: 300px; width: 100%;">
+	</div>
+</body>
+</html>
