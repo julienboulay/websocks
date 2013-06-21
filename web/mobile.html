@@ -93,11 +93,10 @@
 
 <script>
 
-    var delay = 100;
-    var tiltLR = 0;
-    var tiltFB = 0;
-    var offsetTiltFB = 0;
-    var offsetTiltLR = 0;
+    var tiltLR;
+    var tiltFB;
+    var offsetTiltFB;
+    var offsetTiltLR;
     var time = 0;
     var id = -1;
 
@@ -123,14 +122,7 @@
 	//if device doesn't support orientation, this listener is called only once with null event
 	//check http://www.html5rocks.com/en/tutorials/device/orientation/ for more details
     
-	// gamma is the left-to-right tilt in degrees, where right is positive
-	tiltLR = Math.round(eventData.gamma);
-
-	// beta is the front-to-back tilt in degrees, where front is positive
-	tiltFB = Math.round(eventData.beta);
-
-	
-	if (!tiltLR)
+	if (eventData.gamma == null && eventData.beta == null)
 	{
 	  //deviceOrientation is not managed, deviceorientation listener is called only one time
 	  if (window.DeviceMotionEvent)
@@ -143,6 +135,12 @@
 
 	}else
 	{
+  	  // gamma is the left-to-right tilt in degrees, where right is positive
+	  tiltLR = Math.round(eventData.gamma);
+
+	  // beta is the front-to-back tilt in degrees, where front is positive
+	  tiltFB = Math.round(eventData.beta);
+
 	  // call our orientation event handler
 	  deviceOrientationHandler(tiltLR, tiltFB);
 	}
