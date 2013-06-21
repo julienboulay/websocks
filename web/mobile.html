@@ -93,10 +93,12 @@
 
 <script>
 
-    var tiltLR;
-    var tiltFB;
-    var offsetTiltFB;
-    var offsetTiltLR;
+    var displayDelay = 100;
+    var wsSendDelay = 100;
+    var tiltLR = 0;
+    var tiltFB = 0;
+    var offsetTiltFB = 0;
+    var offsetTiltLR = 0;
     var time = 0;
     var id = -1;
 
@@ -141,8 +143,6 @@
 	  // beta is the front-to-back tilt in degrees, where front is positive
 	  tiltFB = Math.round(eventData.beta);
 
-	  // call our orientation event handler
-	  deviceOrientationHandler(tiltLR, tiltFB);
 	}
     }
     
@@ -155,8 +155,6 @@
 	// results in a positive value. 
 	tiltFB = Math.round(eventData.y * -90);
 	
-	// call our orientation event handler
-	deviceOrientationHandler(tiltLR, tiltFB);
     }
     
     
@@ -177,14 +175,11 @@
       tiltLR = Math.round(((acceleration.x) / 9.81) * -90);
       tiltFB = Math.round(((acceleration.y + 9.81) / 9.81) * 90 * facingUp);
 
-      deviceOrientationHandler(tiltLR, tiltFB);
+      
     }
     
     function deviceOrientationHandler(tiltLR, tiltFB){
             
-      document.getElementById("doTiltLR").innerHTML = tiltLR+offsetTiltLR;
-      document.getElementById("doTiltFB").innerHTML = tiltFB+offsetTiltFB;
-      
       time = Math.round(new Date().getTime());
       
 	if(id != -1){
@@ -202,7 +197,19 @@
         offsetTiltLR = -tiltLR;
         offsetTiltFB = -tiltFB;
     }
+    
+    //Displaying data is sequenced in order to avoid client overload
+    setInterval(function() {
+        document.getElementById("doTiltLR").innerHTML = tiltLR+offsetTiltLR;
+        document.getElementById("doTiltFB").innerHTML = tiltFB+offsetTiltFB;
 
+    }, displayDelay);
+
+    //Sending data to websocket is sequenced in order to avoid server overload
+    setInterval(function() {
+        deviceOrientationHandler(tiltLR, tiltFB);
+    }, wsSendDelay);
+    
 </script>
 </body>
 </html>
