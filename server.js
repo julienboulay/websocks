@@ -30,7 +30,7 @@ io.sockets.on('connection', function (socket) {
         socket.emit('id', id++);
     });
 
-    socket.on('gyroData',function (data){
-         socket.broadcast.emit('gyroData', data);
+    socket.on('deviceOrientation',function (data){
+         socket.broadcast.emit('deviceOrientation', data);
      });
 });
