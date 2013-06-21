@@ -50,24 +50,7 @@
 			axisY:{
 				title: "orientation (in degrees)",
 			}, 
-			data: [{ 
-				// dataSeries1
-				markerType: "none",
-				type: "spline",
-				xValueType: "number",
-				showInLegend: true,
-				name: "Smartphone 1",
-				dataPoints: []
-			},
-			{				
-				// dataSeries2
-				markerType: "none",
-				type: "spline",
-				xValueType: "number",
-				showInLegend: true,
-				name: "Smartphone 2" ,
-				dataPoints: []
-			}]
+			data: []
 		});
 		
 		return orientationChart;
@@ -79,17 +62,43 @@
 	    var time = new Date();
 	    time.setTime(new Date().getTime() - startTime);
 	    
-	    if (time < 20000)
+	    if (time < 60000)
 	    {
 		var id = eventData.id;
 	      
 		tiltLRValue = eventData.tiltLR;
 		tiltFBValue = eventData.tiltFB;
 		
+		if (lrChart.options.data[id] == null)
+		{
+		  lrChart.options.data[id] = { 
+				// dataSeries n°id
+				markerType: "none",
+				type: "spline",
+				xValueType: "number",
+				showInLegend: true,
+				name: "Smartphone " + id,
+				dataPoints: []
+			};
+		}
+		
 		lrChart.options.data[id].dataPoints.push({
 			x: time.getTime(),
 			y: tiltLRValue,
 		});
+		
+		if (fbChart.options.data[id] == null)
+		{
+		  fbChart.options.data[id] = { 
+				// dataSeries n°id
+				markerType: "none",
+				type: "spline",
+				xValueType: "number",
+				showInLegend: true,
+				name: "Smartphone " + id,
+				dataPoints: []
+			};
+		}
 		
 		fbChart.options.data[id].dataPoints.push({
 			x: time.getTime(),
