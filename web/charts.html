@@ -14,7 +14,7 @@
 		var chart = new CanvasJS.Chart("chartContainer",{
 			zoomEnabled: true,
 			title: {
-				text: "Share Values of Two smartphones"		
+				text: "Left-Right Orientation"		
 			},
 			toolTip: {
 				shared: true,
@@ -29,23 +29,26 @@
 				fontColor: "dimGrey"
 			},
 			axisX: {
-				title: "chart updates in real time",
+				title: "chart updates in real time (in millisecond)"
 			},
 			axisY:{
+				title: "Orientation angle",
 				includeZero: false
 			}, 
 			data: [{ 
 				// dataSeries1
-				type: "line",
-				xValueType: "dateTime",
+				markerType: "circle",
+				type: "spline",
+				xValueType: "number",
 				showInLegend: true,
 				name: "Smartphone 1",
 				dataPoints: dataPoints1
 			},
 			{				
 				// dataSeries2
+				markerType: "circle",
 				type: "line",
-				xValueType: "dateTime",
+				xValueType: "number",
 				showInLegend: true,
 				name: "Smartphone 2" ,
 				dataPoints: dataPoints2
@@ -59,26 +62,26 @@
 		var socket = io.connect(document.location.host);
 		var time = new Date();
 		
-		socket.on('gyroData', function(data){
+		socket.on('deviceOrientation', function(data){
 		
 		    time.setTime(new Date().getTime() - startTime);
 		
 		    if(data.id == '1'){
-			betaValue1 = data.beta;
-			gamma = data.gamma;
+			tiltLRValue1 = data.tiltLR;
+			gamma = data.tiltFB;
 			
 			dataPoints1.push({
 				x: time.getTime(),
-				y: betaValue1,
+				y: tiltLRValue1,
 			});
 			
 		    } else if (data.id == '2'){
-			betaValue2 = data.beta;
+			tiltLRValue2 = data.beta;
 			gamma = data.gamma;
 
 			dataPoints2.push({
 				x: time.getTime(),
-				y: betaValue2,
+				y: tiltLRValue2,
 			});
 		    }
 		    

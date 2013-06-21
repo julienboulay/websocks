@@ -233,13 +233,13 @@ function handleMouseMove(data) {
 
 //var deltaX = newX - lastMouseX
 
-var deltaX = data.gamma;
+var deltaX = data.tiltLR;
 var newRotationMatrix = mat4.create();
 mat4.identity(newRotationMatrix);
 mat4.rotate(newRotationMatrix, degToRad(deltaX / 10), [0, 1, 0]);
 
 //var deltaY = newY - lastMouseY;
-var deltaY = data.beta;
+var deltaY = data.tiltFB;
 mat4.rotate(newRotationMatrix, degToRad(deltaY / 10), [1, 0, 0]);
 
 mat4.multiply(newRotationMatrix, moonRotationMatrix, moonRotationMatrix);
@@ -430,11 +430,10 @@ tick();
         });
     });
 
-    socket.on('gyroData', function(data){
+    socket.on('deviceOrientation', function(data){
         if(data.id == id){
-            document.getElementById("alphalabel").innerHTML = "Alpha: " + data.alpha;
-            document.getElementById("betalabel").innerHTML = "Beta: " + data.beta;
-            document.getElementById("gammalabel").innerHTML = "Gamma: " + data.gamma;
+            document.getElementById("doTiltLR").innerHTML = data.tiltLR;
+            document.getElementById("doTiltFB").innerHTML = data.tiltFB;
             handleMouseMove(data)
         }
     });
@@ -452,12 +451,20 @@ tick();
 
 <h2>Mobile Gyro Reader --> bit.ly/13Xzg2e</h2>
 <br>
-<div class="box" id="gyro">
-    <span class="head">Gyroscope</span>
-    <span id="alphalabel"></span>
-    <span id="betalabel"></span>
-    <span id="gammalabel"></span>
-</div>
+
+ <div class="box" id="gyro">
+      <h2>Device Orientation</h2>
+      <table>
+	<tr>
+	  <td>Tilt Left/Right [tiltLR]</td>
+	  <td id="doTiltLR"></td>
+	</tr>
+	<tr>
+	  <td>Tilt Front/Back [tiltFB]</td>
+	  <td id="doTiltFB"></td>
+	</tr>
+      </table>
+  </div>
 
 <br>
 
