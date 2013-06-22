@@ -93,8 +93,7 @@
 
 <script>
 
-    var displayDelay = 100;
-    var wsSendDelay = 100;
+    var sampleFrequency = 100;
     var tiltLR = 0;
     var tiltFB = 0;
     var offsetTiltFB = 0;
@@ -198,18 +197,13 @@
         offsetTiltFB = -tiltFB;
     }
     
-    //Displaying data is sequenced in order to avoid client overload
+    //Displaying and sending data to the websocket is rated in order to avoid client/server overload
     setInterval(function() {
         document.getElementById("doTiltLR").innerHTML = tiltLR+offsetTiltLR;
         document.getElementById("doTiltFB").innerHTML = tiltFB+offsetTiltFB;
+	deviceOrientationHandler(tiltLR, tiltFB);
+    }, sampleFrequency);
 
-    }, displayDelay);
-
-    //Sending data to websocket is sequenced in order to avoid server overload
-    setInterval(function() {
-        deviceOrientationHandler(tiltLR, tiltFB);
-    }, wsSendDelay);
-    
 </script>
 </body>
 </html>
