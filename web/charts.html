@@ -2,22 +2,39 @@
 <html>
 
 <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>Mobile Gyroscope Charts</title>
+	
+	<style>
+	    
+	    .chart {
+	    margin:auto;
+	    height: 300px;
+	    width: 66%;
+	    }
+	    
+	</style>
+	
 	<script type="text/javascript" src="socket.io/socket.io.js"></script>
 	<script type="text/javascript" src="js/canvasjs.min.js"></script>
 	
 	<script type="text/javascript">
 	
+	var timelineFrequency = 100;
 	var startTime;
 	var lrChart;
 	var fbChart;
 	
 	window.onload = function () {
 
-		lrChart = createOrientationChart("lrChart", "Left-Right Orientation");
-		fbChart = createOrientationChart("fbChart", "Front-Back Orientation");
+		lrChart = createOrientationChart("lrChart", "Left-Right");
+		fbChart = createOrientationChart("fbChart", "Front-Back");
 
 		startTime =  new Date().getTime();
 
+		lrChart.render();
+		fbChart.render();
+	    
 		var socket = io.connect(document.location.host);
 		
 		
@@ -33,8 +50,7 @@
 				text: title		
 			},
 			toolTip: {
-				shared: true,
-				
+				shared: true
 			},
 			legend: {
 				verticalAlign: "top",
@@ -45,12 +61,25 @@
 				fontColor: "dimGrey"
 			},
 			axisX: {
-				title: "time (in millisecond)"
+				title: "Time",
+				margin: 20,
+				suffix: "s",
+				titleFontSize: 14,
 			},
 			axisY:{
-				title: "orientation (in degrees)",
+				title: "Orientation",
+				margin: 20,
+				suffix: "°",
+				titleFontSize: 14,
 			}, 
-			data: []
+			data: [{
+			      markerType: "none",
+			      type: "spline",
+			      xValueType: "number",
+			      showInLegend: false,
+			      name: "Timeline",
+			      dataPoints: []
+			}]
 		});
 		
 		return orientationChart;
@@ -59,63 +88,104 @@
 	
 	function deviceOrientationListener(eventData)
 	{
-	    var time = new Date();
-	    time.setTime(new Date().getTime() - startTime);
+	    var id = eventData.id;
 	    
-	    if (time < 60000)
+	    if (id != 0)
 	    {
-		var id = eventData.id;
+	      var time = new Date();
+	      time.setTime(new Date().getTime() - startTime);
+	      var timeInSeconds = time.getTime() / 1000;
 	      
-		tiltLRValue = eventData.tiltLR;
-		tiltFBValue = eventData.tiltFB;
-		
-		if (lrChart.options.data[id] == null)
-		{
-		  lrChart.options.data[id] = { 
-				// dataSeries n°id
-				markerType: "none",
-				type: "spline",
-				xValueType: "number",
-				showInLegend: true,
-				name: "Smartphone " + id,
-				dataPoints: []
-			};
-		}
-		
-		lrChart.options.data[id].dataPoints.push({
-			x: time.getTime(),
-			y: tiltLRValue,
-		});
-		
-		if (fbChart.options.data[id] == null)
-		{
-		  fbChart.options.data[id] = { 
-				// dataSeries n°id
-				markerType: "none",
-				type: "spline",
-				xValueType: "number",
-				showInLegend: true,
-				name: "Smartphone " + id,
-				dataPoints: []
-			};
-		}
-		
-		fbChart.options.data[id].dataPoints.push({
-			x: time.getTime(),
-			y: tiltFBValue,
-		});
-		
-		lrChart.render();
-		fbChart.render();
+	      tiltLRValue = eventData.tiltLR;
+	      tiltFBValue = eventData.tiltFB;
+	      
+	      if (lrChart.options.data[id] == null)
+	      {
+		lrChart.options.data[id] = { 
+			      // dataSeries n°id
+			      markerType: "none",
+			      type: "spline",
+			      xValueType: "number",
+			      showInLegend: true,
+			      name: "Smartphone " + id,
+			      dataPoints: []
+		      };
+	      }
+	      
+	      lrChart.options.data[id].dataPoints.push({
+		      x: timeInSeconds,
+		      y: tiltLRValue,
+	      });
+	      	      
+	      if (fbChart.options.data[id] == null)
+	      {
+		fbChart.options.data[id] = { 
+			      // dataSeries n°id
+			      markerType: "none",
+			      type: "spline",
+			      xValueType: "number",
+			      showInLegend: true,
+			      name: "Smartphone " + id,
+			      dataPoints: []
+		      };
+	      }
+	      
+	      fbChart.options.data[id].dataPoints.push({
+		      x: timeInSeconds,
+		      y: tiltFBValue,
+	      });
+	      
 	    }
 	}
+	
+	//Refresh the chart every timelineFrequency
+	setInterval(function() {
+	    var time = new Date();
+	    time.setTime(new Date().getTime() - startTime);
+	    var timeInSeconds = time.getTime() / 1000;
+	      
+	    lrChart.options.data[0].dataPoints.push({
+		  x: timeInSeconds,
+		  y: 0,
+	    });
+	    
+	    fbChart.options.data[0].dataPoints.push({
+		  x: timeInSeconds,
+		  y: 0,
+	    });
+	    
+	    //For each datapoint, removes values older than 10s
+	    for (var i=0;i<lrChart.options.data.length;i++)
+	    { 
+		if (lrChart.options.data[i].dataPoints[0] != null
+		    && lrChart.options.data[i].dataPoints[0].x < timeInSeconds-10)
+		{
+		    lrChart.options.data[i].dataPoints.shift();
+		}
+	    }
+	    
+	    //For each datapoint, removes values older than 10s
+	    for (var i=0;i<fbChart.options.data.length;i++)
+	    { 
+		if (fbChart.options.data[i].dataPoints[0] != null
+		    && fbChart.options.data[i].dataPoints[0].x < timeInSeconds-10)
+		{
+		    fbChart.options.data[i].dataPoints.shift();
+		}
+	    }
+	    
+	    lrChart.render();
+	    fbChart.render();
+	}, timelineFrequency);
+
 	</script>
 	
 </head>
 <body>
-	<div id="lrChart" style="height: 300px; width: 100%;">
+	<div id="lrChart" class="chart">
 	</div>
-	<div id="fbChart" style="height: 300px; width: 100%;">
+	<div id="fbChart" class="chart">
 	</div>
+
 </body>
 </html>
