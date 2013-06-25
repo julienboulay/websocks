@@ -23,6 +23,10 @@ app.get('/js/:resource', function (req, res) {
   res.sendfile(__dirname+'/web/js/'+req.params.resource);
 });
 
+app.get('/icons/:resource', function (req, res) {
+  res.sendfile(__dirname+'/web/icons/'+req.params.resource);
+});
+
 var id = 0;
 io.set('log level', 1);
 io.sockets.on('connection', function (socket) {

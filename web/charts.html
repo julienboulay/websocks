@@ -7,6 +7,13 @@
 	
 	<style>
 	    
+	    .buttonBar {
+	    margin-left:auto;
+	    margin-right:auto;
+	    width:60px;
+	    height: 60px;
+	    }
+	    	    
 	    .chart {
 	    margin:auto;
 	    height: 300px;
@@ -20,17 +27,24 @@
 	
 	<script type="text/javascript">
 	
+	var isResume = true;
+	var pauseLength = 0;
+	var resumeLength = 0;
 	var timelineFrequency = 100;
-	var startTime;
+	var resumeTime = 0;
+	var pauseTime = 0;
 	var lrChart;
 	var fbChart;
 	
 	window.onload = function () {
 
+		var playSpan = document.getElementById('play');
+		playSpan.style.display = 'none';
+	    
 		lrChart = createOrientationChart("lrChart", "Left-Right");
 		fbChart = createOrientationChart("fbChart", "Front-Back");
 
-		startTime =  new Date().getTime();
+		resumeTime =  new Date().getTime();
 
 		lrChart.render();
 		fbChart.render();
@@ -88,61 +102,54 @@
 	
 	function deviceOrientationListener(eventData)
 	{
+	  if (isResume)
+	  {
 	    var id = eventData.id;
 	    
 	    if (id != 0)
 	    {
-	      var time = new Date();
-	      time.setTime(new Date().getTime() - startTime);
-	      var timeInSeconds = time.getTime() / 1000;
+	      var currentLength = new Date();
+	      currentLength.setTime(new Date().getTime() - resumeTime);
+	      var timeInSeconds = (currentLength.getTime() / 1000) + resumeLength;
 	      
 	      tiltLRValue = eventData.tiltLR;
 	      tiltFBValue = eventData.tiltFB;
 	      
-	      if (lrChart.options.data[id] == null)
-	      {
-		lrChart.options.data[id] = { 
-			      // dataSeries n°id
-			      markerType: "none",
-			      type: "spline",
-			      xValueType: "number",
-			      showInLegend: true,
-			      name: "Smartphone " + id,
-			      dataPoints: []
-		      };
-	      }
-	      
-	      lrChart.options.data[id].dataPoints.push({
-		      x: timeInSeconds,
-		      y: tiltLRValue,
-	      });
-	      	      
-	      if (fbChart.options.data[id] == null)
-	      {
-		fbChart.options.data[id] = { 
-			      // dataSeries n°id
-			      markerType: "none",
-			      type: "spline",
-			      xValueType: "number",
-			      showInLegend: true,
-			      name: "Smartphone " + id,
-			      dataPoints: []
-		      };
-	      }
-	      
-	      fbChart.options.data[id].dataPoints.push({
-		      x: timeInSeconds,
-		      y: tiltFBValue,
-	      });
+	      pushData(lrChart, id, timeInSeconds, tiltLRValue);
+	      pushData(fbChart, id, timeInSeconds, tiltFBValue);
 	      
 	    }
+	  }
+	}
+	
+	function pushData(chart, id, xValue, yValue)
+	{
+	    if (chart.options.data[id] == null)
+	      {
+		chart.options.data[id] = { 
+			      // dataSeries n°id
+			      markerType: "circle",
+			      type: "spline",
+			      xValueType: "number",
+			      showInLegend: true,
+			      name: "Smartphone " + id,
+			      dataPoints: []
+		      };
+	      }
+	      
+	      chart.options.data[id].dataPoints.push({
+		      x: xValue,
+		      y: yValue,
+	      });
 	}
 	
 	//Refresh the chart every timelineFrequency
 	setInterval(function() {
-	    var time = new Date();
-	    time.setTime(new Date().getTime() - startTime);
-	    var timeInSeconds = time.getTime() / 1000;
+	  if (isResume)
+	  {
+	    var currentLength = new Date();
+	    currentLength.setTime(new Date().getTime() - resumeTime);
+	    var timeInSeconds = (currentLength.getTime() / 1000) + resumeLength;
 	      
 	    lrChart.options.data[0].dataPoints.push({
 		  x: timeInSeconds,
@@ -176,12 +183,49 @@
 	    
 	    lrChart.render();
 	    fbChart.render();
+	  }
 	}, timelineFrequency);
 
+	function pause()
+	{
+	  isResume = false;
+	  pauseTime = new Date().getTime();
+	  var resumeLengthDate = new Date();
+	  resumeLengthDate.setTime(pauseTime - resumeTime);
+	  resumeLength = resumeLength + resumeLengthDate.getTime() / 1000;
+	  togglePauseResume();
+	}
+	
+	function resume()
+	{
+	  resumeTime = new Date().getTime();
+	  var pauseLengthDate = new Date();
+	  pauseLengthDate.setTime(pauseLength + resumeTime - pauseTime);
+	  pauseLength = pauseLength + pauseLengthDate.getTime() / 1000;
+	  isResume = true;
+	  togglePauseResume();
+	}
+	
+	function togglePauseResume() {
+	    var playSpan = document.getElementById('play');
+	    playSpan.style.display = playSpan.style.display == 'none' ? 'block' : 'none';
+	    var pauseSpan = document.getElementById('pause');
+	    pauseSpan.style.display = pauseSpan.style.display == 'none' ? 'block' : 'none';
+	    
+	}
 	</script>
+	
 	
 </head>
 <body>
+	<div id="buttonBar" class="buttonBar">
+	    <span id="play"><img src="icons/media-playback-start.png" height="60" width="60" alt="Play" 
+   style="cursor:pointer;" onclick="resume();" /></span>
+	    <span id="pause"><img src="icons/media-playback-pause.png" height="60" width="60" alt="Play" 
+   style="cursor:pointer;" onclick="pause();" /></span>
+	    <!--<span id="record"><img src="./icons/media-record.png" height="60" width="60" alt="Record" 
+   style="cursor:pointer;" onclick="alert('Clic sur l'image');" /></span>-->
+	</div>
 	<div id="lrChart" class="chart">
 	</div>
 	<div id="fbChart" class="chart">
